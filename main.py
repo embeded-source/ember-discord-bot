@@ -29,7 +29,7 @@ async def on_message(message):
     if message.channel.name == "ember":
         try:
             # Используем актуальную модель Gemini
-            model = genai.GenerativeModel("gemini-1.5-flash-latest")
+            model = genai.GenerativeModel("gemini-2.5-flash")
             response = model.generate_content(message.content)
             await message.channel.send(response.text)
         except Exception as e:
