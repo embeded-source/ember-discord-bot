@@ -1,11 +1,17 @@
 import discord
 from discord.ext import commands
-from openai import OpenAI
+import google.generativeai as genai
 import os
 
+# Токены
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
-client = OpenAI(api_key=os.getenv("OPENAI_KEY"))
+GEMINI_KEY = os.getenv("GEMINI_KEY")
 
+# Настройка Gemini
+genai.configure(api_key=GEMINI_KEY)
+model = genai.GenerativeModel("gemini-1.5-flash")
+
+# Настройка Discord
 intents = discord.Intents.default()
 intents.messages = True
 intents.message_content = True
@@ -14,7 +20,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 
 @bot.event
 async def on_ready():
-    print(f"{bot.user} запущен и готов к работе.")
+    print(f"{bot.user} запущен и готов к работе (Gemini активен).")
 
 @bot.event
 async def on_message(message):
@@ -22,15 +28,12 @@ async def on_message(message):
         return
 
     if message.channel.name == "ember":
-        response = client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "Ты — личный ассистент John Leslow по имени Ember."},
-                {"role": "user", "content": message.content}
-            ]
-        )
-
-        await message.channel.send(response.choices[0].message.content)
+        try:
+            prompt = f"Ты — личный ассистент John Leslow по имени Ember. Ответь на сообщение: {message.content}"
+            response = model.generate_content(prompt)
+            await message.channel.send(response.text)
+        except Exception as e:
+            await message.channel.send(f"Ошибка при запросе к Gemini: {e}")
 
     await bot.process_commands(message)
 
