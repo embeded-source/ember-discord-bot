@@ -1,12 +1,10 @@
 import discord
 from discord.ext import commands
-import openai
+from openai import OpenAI
 import os
 
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
-OPENAI_KEY = os.getenv("OPENAI_KEY")
-
-openai.api_key = OPENAI_KEY
+client = OpenAI(api_key=os.getenv("OPENAI_KEY"))
 
 intents = discord.Intents.default()
 intents.messages = True
@@ -24,21 +22,15 @@ async def on_message(message):
         return
 
     if message.channel.name == "ember":
-        from openai import OpenAI
-client = OpenAI(api_key=os.getenv("OPENAI_KEY"))
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "Ты — личный ассистент John Leslow по имени Ember."},
+                {"role": "user", "content": message.content}
+            ]
+        )
 
-...
-
-if message.channel.name == "ember":
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "Ты — личный ассистент John Leslow по имени Ember."},
-            {"role": "user", "content": message.content}
-        ]
-    )
-    await message.channel.send(response.choices[0].message.content)
-
+        await message.channel.send(response.choices[0].message.content)
 
     await bot.process_commands(message)
 
