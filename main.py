@@ -21,24 +21,22 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
-    # Проверяем, что сообщение не от бота
     if message.author == bot.user:
         return
 
-    # Реагируем только в нужном канале
     if message.channel.name == "ember":
         try:
             response = model.generate_content(message.content)
             reply = response.text.strip()
 
-            # Отправляем только один ответ
-            if reply:
-                await message.channel.send(reply)
+            # Разбиваем длинный ответ на части по 2000 символов
+            max_length = 2000
+            for i in range(0, len(reply), max_length):
+                await message.channel.send(reply[i:i + max_length])
 
         except Exception as e:
             await message.channel.send(f"Ошибка при запросе к Gemini: {e}")
 
-    # Обязательно пропускаем командные сообщения
     await bot.process_commands(message)
 
 bot.run(DISCORD_TOKEN)
