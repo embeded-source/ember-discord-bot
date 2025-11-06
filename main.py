@@ -24,14 +24,21 @@ async def on_message(message):
         return
 
     if message.channel.name == "ember":
-        response = openai.ChatCompletion.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "Ты — дружелюбный помощник, который кратко отвечает на вопросы."},
-                {"role": "user", "content": message.content}
-            ]
-        )
-        await message.channel.send(response.choices[0].message.content)
+        from openai import OpenAI
+client = OpenAI(api_key=os.getenv("OPENAI_KEY"))
+
+...
+
+if message.channel.name == "ember":
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "Ты — личный ассистент John Leslow по имени Ember."},
+            {"role": "user", "content": message.content}
+        ]
+    )
+    await message.channel.send(response.choices[0].message.content)
+
 
     await bot.process_commands(message)
 
