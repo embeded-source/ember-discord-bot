@@ -3,14 +3,12 @@ from discord.ext import commands
 import google.generativeai as genai
 import os
 
-# Настройки токенов
 DISCORD_TOKEN = os.getenv("DISCORD_TOKEN")
-GEMINI_KEY = os.getenv("GEMINI_KEY")
+GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 
-# Настройка Gemini
-genai.configure(api_key=GEMINI_KEY)
+genai.configure(api_key=GOOGLE_API_KEY)
+model = genai.GenerativeModel("gemini-2.5-flash")
 
-# Настройки Discord
 intents = discord.Intents.default()
 intents.messages = True
 intents.message_content = True
@@ -23,18 +21,24 @@ async def on_ready():
 
 @bot.event
 async def on_message(message):
+    # Проверяем, что сообщение не от бота
     if message.author == bot.user:
         return
 
+    # Реагируем только в нужном канале
     if message.channel.name == "ember":
         try:
-            # Используем актуальную модель Gemini
-            model = genai.GenerativeModel("gemini-2.5-flash")
             response = model.generate_content(message.content)
-            await message.channel.send(response.text)
+            reply = response.text.strip()
+
+            # Отправляем только один ответ
+            if reply:
+                await message.channel.send(reply)
+
         except Exception as e:
             await message.channel.send(f"Ошибка при запросе к Gemini: {e}")
 
+    # Обязательно пропускаем командные сообщения
     await bot.process_commands(message)
 
 bot.run(DISCORD_TOKEN)
