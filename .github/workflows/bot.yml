@@ -19,7 +19,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install openai discord.py
+          pip install openai==1.3.0 discord.py
 
       - name: Run bot
         env:
