@@ -18,9 +18,9 @@ jobs:
           python-version: "3.10"
 
       - name: Install dependencies
-  run: |
-    pip install --upgrade pip
-    pip install --force-reinstall --no-cache-dir -r requirements.txt
+        run: |
+          pip install --upgrade pip
+          pip install --force-reinstall --no-cache-dir -r requirements.txt
 
       - name: Run bot
         env:
